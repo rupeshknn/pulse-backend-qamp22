@@ -71,3 +71,13 @@ pd.DataFrame(**cals.parameters_table(qubit_list=[qubit, ()], parameters="amp"))
 data_fine2 = amp_x_cal.run().block_for_results()
 data_fine2.figure(0)
 # %%
+amp_x_cal.circuits()[3].data
+# %%
+cals.get_inst_map()._map['x']
+# %%
+amp_x_cal.calibrations.default_inst_map._map #_transpiled_circuits()[3].data
+
+# %%
+amp_x_cal._transpiled_circuits()[3].data[0].operation
+# %%
+pulse_backend
