@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "pulse-backend-qamp22/qiskit-experiments"
+		},
+		{
+			"path": "pulse-backend-qamp22"
+		}
+	],
+	"settings": {}
+}
