@@ -1,11 +1,13 @@
 {
 	"folders": [
 		{
-			"path": "pulse-backend-qamp22/qiskit-experiments"
+			"path": "qiskit-experiments/"
 		},
 		{
-			"path": "pulse-backend-qamp22"
+			"path": "./"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"esbonio.sphinx.confDir": ""
+	}
 }
