@@ -1,0 +1,121 @@
+ValueError                                Traceback (most recent call last)
+Cell In [5], line 29
+     19 ops = [np.kron(ident, coupling), np.kron(coupling, ident)]
+     21 model = Solver(
+     22     static_hamiltonian=static,
+     23     hamiltonian_operators=ops,
+   (...)
+     26     dt = 0.1
+     27 )
+---> 29 result = model.solve(
+     30     t_span=[0.0, 1.],
+     31     y0=np.array([1., 0., 0., 0., 0., 0., 0., 0., 0.]),
+     32     signals=sched)
+     34 # ValueError: all the input arrays must have same number of dimensions,
+     35 # but the array at index 0 has 2 dimension(s) and the array at index 1 has 1 dimension(s)
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/solvers/solver_classes.py:611, in Solver.solve(self, t_span, y0, signals, convert_results, **kwargs)
+    603     all_results = self._solve_schedule_list_jax(
+    604         t_span_list=t_span_list,
+    605         y0_list=y0_list,
+   (...)
+    608         **kwargs,
+    609     )
+    610 else:
+--> 611     all_results = self._solve_list(
+    612         t_span_list=t_span_list,
+    613         y0_list=y0_list,
+    614         signals_list=signals_list,
+    615         convert_results=convert_results,
+    616         **kwargs,
+    617     )
+    619 if multiple_sims is False:
+    620     return all_results[0]
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/solvers/solver_classes.py:642, in Solver._solve_list(self, t_span_list, y0_list, signals_list, convert_results, **kwargs)
+    639 if isinstance(signals, Schedule):
+    640     signals = self._schedule_to_signals(signals)
+--> 642 self._set_new_signals(signals)
+    644 # setup initial state
+    645 y0, y0_input, y0_cls, state_type_wrapper = validate_and_format_initial_state(
+    646     y0, self.model
+    647 )
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/solvers/solver_classes.py:750, in Solver._set_new_signals(self, signals)
+    748 if self._rwa_signal_map:
+    749     signals = self._rwa_signal_map(signals)
+--> 750 self.model.signals = signals
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/models/generator_model.py:290, in GeneratorModel.signals(self, signals)
+    287 else:
+    288     # if signals is a list, instantiate a SignalList
+    289     if isinstance(signals, list):
+--> 290         signals = SignalList(signals)
+    292     # if it isn't a SignalList by now, raise an error
+    293     if not isinstance(signals, SignalList):
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/signals/signals.py:822, in SignalList.__init__(self, signal_list)
+    820 def __init__(self, signal_list: List[Signal]):
+--> 822     signal_list = [to_SignalSum(signal) for signal in signal_list]
+    824     super().__init__(signal_list)
+    826     # setup complex value and full signal evaluation
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/signals/signals.py:822, in <listcomp>(.0)
+    820 def __init__(self, signal_list: List[Signal]):
+--> 822     signal_list = [to_SignalSum(signal) for signal in signal_list]
+    824     super().__init__(signal_list)
+    826     # setup complex value and full signal evaluation
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/signals/signals.py:1137, in to_SignalSum(sig)
+   1135     return SignalSum(Signal(sig))
+   1136 elif isinstance(sig, DiscreteSignal) and not isinstance(sig, DiscreteSignalSum):
+-> 1137     return DiscreteSignalSum(
+   1138         dt=sig.dt,
+   1139         samples=Array([sig.samples.data]).transpose(1, 0),
+   1140         start_time=sig.start_time,
+   1141         carrier_freq=Array([sig.carrier_freq.data]),
+   1142         phase=Array([sig.phase.data]),
+   1143     )
+   1144 elif isinstance(sig, Signal) and not isinstance(sig, SignalSum):
+   1145     return SignalSum(sig)
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/signals/signals.py:681, in DiscreteSignalSum.__init__(self, dt, samples, start_time, carrier_freq, phase, name)
+    678 if phase is None:
+    679     phase = np.zeros(samples.shape[-1], dtype=float)
+--> 681 DiscreteSignal.__init__(
+    682     self,
+    683     dt=dt,
+    684     samples=samples,
+    685     start_time=start_time,
+    686     carrier_freq=carrier_freq,
+    687     phase=phase,
+    688     name=name,
+    689 )
+    691 # construct individual components so they can be accessed as in SignalSum
+    692 components = []
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/signals/signals.py:309, in DiscreteSignal.__init__(self, dt, samples, start_time, carrier_freq, phase, name)
+    307 else:
+    308     zero_pad = np.expand_dims(np.zeros_like(Array(samples[0])), 0)
+--> 309 self._padded_samples = np.append(samples, zero_pad, axis=0)
+    311 self._start_time = start_time
+    313 # define internal envelope function
+
+File <__array_function__ internals>:180, in append(*args, **kwargs)
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/qiskit_dynamics/array/array.py:292, in Array.__array_function__(self, func, types, args, kwargs)
+    290 if dispatch_func == NotImplemented:
+    291     return NotImplemented
+--> 292 result = dispatch_func(*args, **kwargs)
+    293 return self._wrap(result, backend=self.backend)
+
+File <__array_function__ internals>:180, in append(*args, **kwargs)
+
+File ~/mambaforge/envs/exp/lib/python3.8/site-packages/numpy/lib/function_base.py:5444, in append(arr, values, axis)
+   5442     values = ravel(values)
+   5443     axis = arr.ndim-1
+-> 5444 return concatenate((arr, values), axis=axis)
+
+File <__array_function__ internals>:180, in concatenate(*args, **kwargs)
+
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 2 dimension(s) and the array at index 1 has 1 dimension(s)
