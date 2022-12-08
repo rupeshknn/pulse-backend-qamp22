@@ -8,6 +8,7 @@
 		}
 	],
 	"settings": {
-		"esbonio.sphinx.confDir": ""
+		"esbonio.sphinx.confDir": "",
+		"cSpell.enabled": false
 	}
 }
